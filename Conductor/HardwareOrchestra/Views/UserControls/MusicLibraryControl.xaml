@@ -1,0 +1,195 @@
+﻿<UserControl
+    x:Class="HardwareOrchestra.Views.UserControls.MusicLibraryControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:HardwareOrchestra.Views.UserControls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+    xmlns:vm="using:HardwareOrchestra.Viewmodels"
+    xmlns:orchestra="using:HardwareOrchestra.Viewmodels.Orchestra"
+    xmlns:i="using:Microsoft.Xaml.Interactivity"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:templates="using:HardwareOrchestra.Views.Templates"
+    mc:Ignorable="d"
+    d:DesignHeight="1000"
+    d:DesignWidth="1000"
+    RequestedTheme="Light">
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Styles/Button.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+
+            <SolidColorBrush x:Key="AlarmRed" Color="#fb2222"/>
+
+            <DataTemplate x:Key="MusicInfoItem" x:DataType="vm:SheetmusicViewmodel">
+                <Grid
+                    x:Name="Gridas"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch"
+                    Background="{StaticResource SystemChromeMediumColor}"
+                    CornerRadius="12"
+                    Height="40"
+                    Margin="4"
+                    >
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel
+                        Grid.Column="0"
+                        Orientation="Horizontal">
+
+
+                        <templates:ContentToggleButton 
+                            Style="{StaticResource ForegroundOnlyStyle}" 
+                            IsChecked="{Binding IsFavourite, Mode=TwoWay}"
+                            >
+                            <templates:ContentToggleButton.OffContent>
+                                <FontIcon Glyph="&#xEB51;" FontSize="16"/>
+                            </templates:ContentToggleButton.OffContent>
+                            <templates:ContentToggleButton.OnContent>
+                                <FontIcon Glyph="&#xEB52;" FontSize="16"/>
+                            </templates:ContentToggleButton.OnContent>
+
+                            
+                        </templates:ContentToggleButton>
+                        
+                        <TextBlock 
+                            Margin="8,0,0,0"
+                            Grid.Column="0"
+                            VerticalAlignment="Center"
+                            Style="{StaticResource BaseTextBlockStyle}"
+                            Text="{Binding Title}"/>
+
+                    </StackPanel>
+
+                    <StackPanel
+                        Grid.Column="1"
+                        Orientation="Horizontal">
+
+
+                        
+
+                        <Button
+                            Style="{StaticResource ForegroundOnlyStyle}"
+                            Click="Button_Click"
+                            >
+                            <Button.Content>
+                                <FontIcon Glyph="&#xE896;" FontSize="16"/>
+                            </Button.Content>
+                        </Button>
+
+                        <Button
+                            Style="{StaticResource ForegroundOnlyStyle}"
+                            Click="RemoveMusicFile_Click"
+                            >
+                            <Button.Content>
+                                <FontIcon Glyph="&#xE74D;" FontSize="16"/>
+                            </Button.Content>
+                        </Button>
+
+                    </StackPanel>
+                    
+                    
+                    
+
+                </Grid>
+            </DataTemplate>
+                
+        </ResourceDictionary>
+
+
+    </UserControl.Resources>
+
+
+    <Grid>
+        <StackPanel 
+            Grid.Row="0" 
+            Padding="20"
+            Translation="0,0,16"
+            Background="{StaticResource SystemChromeWhiteColor}"
+            >
+
+            <!-- Title -->
+            <TextBlock 
+                Margin="{StaticResource SpacingAll}"
+                Text="Music Library" 
+                Style="{StaticResource TitleTextBlockStyle}"
+                Foreground="{StaticResource SystemAccentColor}"
+                />
+            
+            
+
+            <AutoSuggestBox
+                            QueryIcon="Find"
+                            PlaceholderText="Search"
+                            TextChanged="SearchBox_TextChanged"/>
+
+
+            <Button Content="Add" Click="AddMusicFile_Click"/>
+
+            <!-- Connection Setup -->
+            <local:CollapsableSection
+                Title="Liked"
+                Glyph="&#xEB51;">
+                <local:CollapsableSection.SectionContent>
+                    <ItemsControl
+                        x:Name="FavouritesItemsControl"
+                        ItemTemplate="{StaticResource MusicInfoItem}">
+
+                        <ItemsControl.ItemContainerTransitions>
+                            <TransitionCollection>
+                                <AddDeleteThemeTransition/>
+                            </TransitionCollection>
+                        </ItemsControl.ItemContainerTransitions>
+
+                        
+                    </ItemsControl>
+                </local:CollapsableSection.SectionContent>
+
+            </local:CollapsableSection>
+
+            <local:CollapsableSection
+                Title="Explore"
+                Glyph="&#xE773;"
+                >
+                <local:CollapsableSection.SectionContent>
+                    <StackPanel>
+                        
+                        <ItemsControl
+                            x:Name="MusicExplorerItemsControl"
+                            ItemTemplate="{StaticResource MusicInfoItem}">
+
+                            <ItemsControl.Transitions>
+                                <TransitionCollection>
+                                    <AddDeleteThemeTransition/>
+                                </TransitionCollection>
+                            </ItemsControl.Transitions>
+                        </ItemsControl>
+                        
+                        
+                    </StackPanel>
+
+                </local:CollapsableSection.SectionContent>
+
+
+            </local:CollapsableSection>
+
+
+
+
+
+
+
+        </StackPanel>
+    </Grid>
+
+
+
+</UserControl>

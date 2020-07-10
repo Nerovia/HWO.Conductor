@@ -1,0 +1,57 @@
+﻿<Page
+    x:Class="HardwareOrchestra.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:HardwareOrchestra"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:uc="using:HardwareOrchestra.Views.UserControls"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Grid>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="350"/>
+        </Grid.ColumnDefinitions>
+
+        <Grid Grid.Column="0">
+            
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="80"/>
+            </Grid.RowDefinitions>
+
+            <uc:MusicLibraryControl
+            Grid.Row="0"
+            Orchestra="{x:Bind Viewmodel.Orchestra, Mode=OneTime}"
+            MusicLibrary="{x:Bind Viewmodel.MusicLibrary, Mode=OneTime}"
+            />
+
+            <StackPanel
+                Grid.Row="1"
+                Background="Bisque"
+                VerticalAlignment="Center"
+                HorizontalAlignment="Center"
+                Orientation="Horizontal">
+
+                <Button Click="Button_Click" Content="Play" Margin="10" IsEnabled="{x:Bind Viewmodel.Orchestra.CanPlay, Mode=OneWay}"/>
+                <Button Click="Button_Click_1"  Content="Pause" Margin="10"/>
+
+            </StackPanel>
+        </Grid>
+
+
+        
+
+
+        <uc:ConcertmasterControl 
+            Grid.Column="1"
+            Orchestra="{x:Bind Viewmodel.Orchestra, Mode=OneTime}"
+            DeviceFinder="{x:Bind Viewmodel.DeviceFinder, Mode=OneTime}"
+            />
+        
+
+    </Grid>
+</Page>

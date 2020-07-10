@@ -1,0 +1,22 @@
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:HardwareOrchestra.Views.Dictionaries">
+
+
+    <x:Double x:Key="ElementHeightNormal">34</x:Double>
+    <CornerRadius x:Key="ElementRadiusNormal">4</CornerRadius>
+    <x:Double x:Key="FontIconSizeNormal">14</x:Double>
+    <Thickness x:Key="SpacingAll">4,4,4,4</Thickness>
+    <Thickness x:Key="SpacingTop">0,4,0,0</Thickness>
+    <Thickness x:Key="SpacingBottom">0,0,0,4</Thickness>
+    <Thickness x:Key="SpacingLeft">4,0,0,0</Thickness>
+    <Thickness x:Key="SpacingRight">0,0,4,0</Thickness>
+    <Thickness x:Key="SpacingTopBottom">0,4,0,4</Thickness>
+    <Thickness x:Key="SpacingLeftRight">4,0,4,0</Thickness>
+    
+
+
+    
+    
+</ResourceDictionary>

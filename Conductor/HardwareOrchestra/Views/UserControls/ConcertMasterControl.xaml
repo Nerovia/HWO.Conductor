@@ -1,0 +1,283 @@
+﻿<UserControl
+    x:Class="HardwareOrchestra.Views.UserControls.ConcertmasterControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:HardwareOrchestra.Views.UserControls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+    xmlns:vm="using:HardwareOrchestra.Viewmodels"
+    xmlns:orchestra="using:HardwareOrchestra.Viewmodels.Orchestra"
+    xmlns:enumeration="using:Windows.Devices.Enumeration"
+    xmlns:i="using:Microsoft.Xaml.Interactivity"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    mc:Ignorable="d"
+    d:DesignHeight="1000"
+    d:DesignWidth="300"
+    RequestedTheme="Light">
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+
+            <!-- #region Template Selectors -->
+
+
+            <!--#region Connect/Disconnect Button Selector -->
+
+            <DataTemplate x:Key="DisconnectText">
+                <TextBlock Text="Disconnect"/>
+            </DataTemplate>
+
+            <DataTemplate x:Key="ConnectText">
+                <TextBlock Text="Connect"/>
+            </DataTemplate>
+
+            <local:SwitchTemplateSelector 
+                x:Key="ConnectDisconnectSelector"
+                FalseTemplate="{StaticResource ConnectText}"
+                TrueTemplate="{StaticResource DisconnectText}"
+                >
+            </local:SwitchTemplateSelector>
+
+            <!--#endregion-->
+
+
+            <!--#endregion-->
+
+            <!--#region Tempaltes -->
+
+            <!-- Instrument Config -->
+            
+            <DataTemplate x:Key="InsturmentConifg" x:DataType="orchestra:InstrumentViewmodel">
+                <Grid
+                    Name="Insturment"
+                    HorizontalAlignment="Stretch"
+                    Background="{StaticResource SystemChromeMediumColor}"
+                    CornerRadius="12"
+                    >
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+
+
+
+                    <StackPanel
+                        Margin="20,20,0,20"
+                        Grid.Column="0"
+                        VerticalAlignment="Center"
+                        >
+                        <TextBlock Text="{Binding Name}" Style="{StaticResource BaseTextBlockStyle}"/>
+                        <TextBlock Foreground="{StaticResource SystemChromeDisabledLowColor}">
+                            <Run Text="Socket #"/><Run Text="{Binding Number}" />
+                            <Run Text="-"/>
+                            <Run Text="ID #"/><Run Text="{Binding Id}" />
+                        </TextBlock>
+
+                    </StackPanel>
+
+
+                    
+                    
+                    <Border
+                        Grid.Column="1"
+                        Width="80"
+                        Background="{StaticResource SystemChromeHighColor}">
+                        <StackPanel VerticalAlignment="Center" Tapped="StackPanel_Tapped">
+                            <FontIcon Glyph="&#xE8D6;" />
+                            <TextBlock 
+                                HorizontalAlignment="Center">
+                                <!--Text="{Binding AssignedTrack.TrackNummer, Mode=OneWay }">-->
+                                
+                            </TextBlock>
+
+                            <FlyoutBase.AttachedFlyout>
+                                <Flyout Placement="Left">
+                                    <!--<GridView
+                                        Loaded="ItemsControl_Loaded"
+                                        SelectedItem="{Binding AssignedTrack, Mode=TwoWay}"
+                                        >
+                                        <GridView.ItemTemplate>
+                                            <DataTemplate x:DataType="orchestra:ChannelViewmodel">
+                                                <GridViewItem
+                                                    Width="60"
+                                                    Height="60"
+                                                    Background="Red"
+                                                    >
+                                                    <GridViewItem.Content>
+
+                                                        <TextBlock 
+                                                            HorizontalAlignment="Center"
+                                                            VerticalAlignment="Center"
+                                                            Text="{Binding TrackNummer}"/>
+                                                    </GridViewItem.Content>
+
+                                                </GridViewItem>
+                                            </DataTemplate>
+                                        </GridView.ItemTemplate>
+                                    </GridView>-->
+                                </Flyout>
+                                
+                            </FlyoutBase.AttachedFlyout>
+                        </StackPanel>
+                        
+                    </Border>
+
+                </Grid>
+            </DataTemplate>
+
+
+
+        </ResourceDictionary>
+
+
+    </UserControl.Resources>
+
+
+
+
+
+
+
+    <Grid DataContext="{x:Bind}">
+        <StackPanel 
+            Grid.Row="0" 
+            Padding="20"
+            Translation="0,0,16"
+            Background="{StaticResource SystemChromeMediumLowColor}"
+            >
+
+
+
+            <!-- Title -->
+            <TextBlock 
+                Margin="{StaticResource SpacingAll}"
+                Text="Concertmaster" 
+                Style="{StaticResource TitleTextBlockStyle}"
+                Foreground="{StaticResource SystemAccentColor}"
+                />
+
+
+
+            <!-- Connection Setup -->
+            <local:CollapsableSection
+                Title="Connection"
+                Glyph="&#xECF0;"
+                >
+                <local:CollapsableSection.SectionContent>
+
+                    <StackPanel>
+
+                        <ComboBox
+                            x:Name="AvailableDevicesComboBox"
+                            Margin="{StaticResource SpacingAll}"
+                            Height="{StaticResource ElementHeightNormal}"
+                            ItemsSource="{Binding DeviceFinder.Devices, Mode=OneWay}"
+                            SelectedItem="{Binding Orchestra.SelectedDevice, Mode=TwoWay}"
+                            DropDownOpened="AvailableDevicesComboBox_DropDownOpened"
+                            HorizontalAlignment="Stretch"
+                            PlaceholderText="Select a Device"
+                            >
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate x:DataType="enumeration:DeviceInformation">
+                                    <TextBlock Text="{Binding Name, Mode=OneTime}"/>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+
+                        <Button
+                            Margin="{StaticResource SpacingAll}"
+                            Height="{StaticResource ElementHeightNormal}"
+                            HorizontalAlignment="Stretch"
+                            Click="ConnectDisconnectButtonClick"
+                            >
+                            <Button.Content>
+                                <ContentControl
+                                ContentTemplateSelector="{StaticResource ConnectDisconnectSelector}"
+                                Content="{Binding Orchestra.IsConnected, Mode=OneWay}"
+                                />
+                            </Button.Content>
+
+
+                        </Button>
+                    </StackPanel>
+
+                </local:CollapsableSection.SectionContent>
+
+            </local:CollapsableSection>
+
+
+
+
+            <!-- Terminal -->
+            <!--
+            <local:CollapsableSection
+                Title="Terminal"
+                Glyph="&#xE756;"
+                >
+                <local:CollapsableSection.SectionContent>
+                    <StackPanel>
+                        <Border 
+                            Height="160" 
+                            Background="{StaticResource TextBoxBackgroundThemeBrush}"
+                            BorderBrush="{StaticResource TextBoxBorderThemeBrush}"
+                            BorderThickness="1"
+                            CornerRadius="4"
+                            HorizontalAlignment="Stretch"
+                            >
+                            <ScrollViewer Margin="8">
+                                <TextBlock>
+                                </TextBlock>
+                            </ScrollViewer>
+                            
+                        </Border>
+
+                        <TextBox
+                            Margin="0,8,0,0"
+                            HorizontalAlignment="Stretch"
+                            PlaceholderText="Input Command"
+                            />
+                        
+                    </StackPanel>
+                </local:CollapsableSection.SectionContent>
+                
+            </local:CollapsableSection>-->
+
+
+
+            <!-- Instrument Panel -->
+            <local:CollapsableSection
+                Title="Instruments"
+                Glyph="&#xE90B;"
+                >
+                <local:CollapsableSection.SectionContent>
+                    <ScrollViewer
+                    Margin="{StaticResource SpacingAll}"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch"
+                    >
+
+                        <ItemsControl
+                            Margin="0,-4,0,-4"
+                            ItemTemplate="{StaticResource InsturmentConifg}"
+                            ItemsSource="{Binding Orchestra.Instruments, Mode=OneWay}"
+                            >
+                            <ItemsControl.ItemContainerStyle>
+                                <Style TargetType="ContentPresenter">
+                                    <Setter Property="Margin" Value="0,4,0,4"/>
+                                </Style>
+                            </ItemsControl.ItemContainerStyle>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </local:CollapsableSection.SectionContent>
+
+            </local:CollapsableSection>
+
+
+
+
+        </StackPanel>
+    </Grid>
+</UserControl>
