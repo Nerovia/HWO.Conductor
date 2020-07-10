@@ -24,20 +24,18 @@ namespace HardwareOrchestra.Viewmodels.Orchestra
 
         #region Properties
 
-
-        public InstrumentViewmodel AssignedInstrument
+        public void ResetAssignedInstrument()
         {
-            get => _AssignedInstrument;
-            set
-            {
-                if (value != _AssignedInstrument)
-                {
-                    _AssignedInstrument.AsignedChannel = null;
-                    _AssignedInstrument = value;
-                }
-            }
+            if (AssignedInstrument is null)
+                return;
+
+            AssignedInstrument.AssignedChannel = null;
+            AssignedInstrument = null;
         }
-        private InstrumentViewmodel _AssignedInstrument;
+
+
+
+        public InstrumentViewmodel AssignedInstrument { get; set; }
 
 
         public byte Number

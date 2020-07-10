@@ -37,16 +37,27 @@ namespace HardwareOrchestra.Viewmodels.Orchestra
 
 
 
-        public ChannelViewmodel AsignedChannel
+        public ChannelViewmodel AssignedChannel
         {
             get => _AssignedChannel;
             set
             {
                 if (_AssignedChannel != value)
                 {
-                    _AssignedChannel.AssignedInstrument = null;
+                    if (_AssignedChannel != null)
+                        _AssignedChannel.AssignedInstrument = null;
+                    
                     _AssignedChannel = value;
-                    _AssignedChannel.AssignedInstrument = this;
+
+                    if (_AssignedChannel != null)
+                    {
+                        if (_AssignedChannel.AssignedInstrument != null)
+                            _AssignedChannel.AssignedInstrument.AssignedChannel = null;
+                        _AssignedChannel.AssignedInstrument = this;
+                    }
+                        
+
+                    OnPropertyChanged(nameof(AssignedChannel));
                 }
             }
         }

@@ -63,7 +63,6 @@
 
 
 
-
                     <StackPanel
                         Margin="20,20,0,20"
                         Grid.Column="0"
@@ -88,16 +87,16 @@
                         <StackPanel VerticalAlignment="Center" Tapped="StackPanel_Tapped">
                             <FontIcon Glyph="&#xE8D6;" />
                             <TextBlock 
-                                HorizontalAlignment="Center">
-                                <!--Text="{Binding AssignedTrack.TrackNummer, Mode=OneWay }">-->
+                                HorizontalAlignment="Center"
+                                Text="{Binding AssignedChannel.Number, Mode=OneWay }">
                                 
                             </TextBlock>
 
                             <FlyoutBase.AttachedFlyout>
                                 <Flyout Placement="Left">
-                                    <!--<GridView
+                                    <GridView
                                         Loaded="ItemsControl_Loaded"
-                                        SelectedItem="{Binding AssignedTrack, Mode=TwoWay}"
+                                        SelectedItem="{Binding AssignedChannel, Mode=TwoWay}"
                                         >
                                         <GridView.ItemTemplate>
                                             <DataTemplate x:DataType="orchestra:ChannelViewmodel">
@@ -111,13 +110,13 @@
                                                         <TextBlock 
                                                             HorizontalAlignment="Center"
                                                             VerticalAlignment="Center"
-                                                            Text="{Binding TrackNummer}"/>
+                                                            Text="{Binding Number}"/>
                                                     </GridViewItem.Content>
 
                                                 </GridViewItem>
                                             </DataTemplate>
                                         </GridView.ItemTemplate>
-                                    </GridView>-->
+                                    </GridView>
                                 </Flyout>
                                 
                             </FlyoutBase.AttachedFlyout>

@@ -86,6 +86,7 @@ namespace HardwareOrchestra.Viewmodels
         /// </summary>
         private async void OnAppSuspending(object sender, Windows.ApplicationModel.SuspendingEventArgs e)
         {
+            Orchestra.Disconnect();
             await MusicLibrary.Save();
             MusicLibrary.Close();
         }

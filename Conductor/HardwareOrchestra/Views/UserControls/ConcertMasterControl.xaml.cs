@@ -73,12 +73,12 @@ namespace HardwareOrchestra.Views.UserControls
 
         private void StackPanel_Tapped(object sender, TappedRoutedEventArgs e)
         {
-            
+            Flyout.ShowAttachedFlyout(sender as FrameworkElement);
         }
 
         private void ItemsControl_Loaded(object sender, RoutedEventArgs e)
         {
-            
+            (sender as ItemsControl).ItemsSource = Orchestra.Channels;
         }
 
         private void AvailableDevicesComboBox_DropDownOpened(object sender, object e)

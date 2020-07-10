@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO.Ports;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
 using Windows.UI.Core;
@@ -129,8 +131,12 @@ namespace HardwareOrchestra.Resources.Orchestra
         /// <param name="instruction"></param>
         private void TryConduct(char command, string instruction)
         {
+            if (!serialPort.IsOpen)
+                return;
+
             try
             {
+                Debug.WriteLine("<- " + command + instruction);
                 serialPort.WriteLine(command + instruction);
             }
             catch
@@ -150,6 +156,7 @@ namespace HardwareOrchestra.Resources.Orchestra
             {
                 // Read from the serialbuffer.
                 var message = serialPort.ReadLine().Trim().Trim('$');
+                Debug.WriteLine("-> " + message);
 
 
                 // Check if contains anything.
@@ -168,8 +175,8 @@ namespace HardwareOrchestra.Resources.Orchestra
                 {
                     case Command.QueueTone:
                         var tone = OnQueueRequest();
-                        if (tone.HasValue)
-                            QueueTone(tone.Value);
+                        if (tone != null)
+                            QueueTone(tone);
                         break;
 
                     case Command.Handshake:
@@ -179,7 +186,8 @@ namespace HardwareOrchestra.Resources.Orchestra
                     case Command.ChangeState:
                         try
                         {
-                            OrchestraState = (OrchestraState)byte.Parse(parameters[1]);
+                            OrchestraState = (OrchestraState)byte.Parse(parameters[0]);
+                            stateChanged?.SetResult(OrchestraState);
                         }
                         catch
                         {
@@ -237,8 +245,10 @@ namespace HardwareOrchestra.Resources.Orchestra
         /// <summary>
         /// Closes the current connection to a concertmaster.
         /// </summary>
-        public void Disconnect()
+        public async void Disconnect()
         {
+            await ChangeState(OrchestraState.Rest);
+
             serialPort.Close();
             IsConnected = false;
             Instruments = null;
@@ -249,10 +259,14 @@ namespace HardwareOrchestra.Resources.Orchestra
         /// Insturcts the concertmaster to change the orchestras state to the requested value.
         /// </summary>
         /// <param name="state"></param>
-        public void ChangeState(OrchestraState state)
+        public async Task ChangeState(OrchestraState state)
         {
             TryConduct(Command.ChangeState, ((byte)state).ToString());
+            stateChanged = new TaskCompletionSource<OrchestraState>();
+            await stateChanged.Task;
+            stateChanged = null;
         }
+        private TaskCompletionSource<OrchestraState> stateChanged;
 
 
         /// <summary>
@@ -278,7 +292,7 @@ namespace HardwareOrchestra.Resources.Orchestra
         /// <summary>
         /// Clears the internal performing-queue of the concertmaster.
         /// </summary>
-        public void ClearTone()
+        public void ClearQueue()
         {
             TryConduct(Command.ClearQueue);
         }
@@ -298,9 +312,9 @@ namespace HardwareOrchestra.Resources.Orchestra
 
 
         public QueueRequestHandler QueueRequest;
-        protected virtual Tone? OnQueueRequest()
+        protected virtual Tone OnQueueRequest()
         {
-            return QueueRequest?.Invoke();
+            return QueueRequest.Invoke();
         }
 
 

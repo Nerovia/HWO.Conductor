@@ -146,6 +146,7 @@ namespace HardwareOrchestra.Viewmodels.Orchestra
                 if (_Piece != value)
                 {
                     _Piece = value;
+                    Stop();
                     OnPropertyChanged(nameof(CanPlay));
                 }
             }
@@ -200,7 +201,7 @@ namespace HardwareOrchestra.Viewmodels.Orchestra
         }
 
 
-        public void Play()
+        public async void Play()
         {
             if (!CanPlay)
                 return;
@@ -208,48 +209,47 @@ namespace HardwareOrchestra.Viewmodels.Orchestra
             if (OrchestraState != OrchestraState.Rest)
                 return;
 
-            if (currentTone > Piece.Length)
+            if (currentTone >= Piece.Length)
                 currentTone = 0;
 
-            conductor.ChangeState(OrchestraState.Perform);
-
-
-
-
+            await conductor.ChangeState(OrchestraState.Perform);
         }
 
 
-        public void Pause()
+        public async void Pause()
         {
-            conductor.ChangeState(OrchestraState.Rest);
+            await conductor.ChangeState(OrchestraState.Rest);
         }
 
 
-        private Tone? Conductor_QueueRequest()
+        public async void Stop()
+        {
+            currentTone = 0;
+            conductor.ClearQueue();
+            await conductor.ChangeState(OrchestraState.Rest);
+        }
+
+
+        private Tone Conductor_QueueRequest()
         {
             while (true)
             {
-                if (currentTone > Piece.Length)
+                if (currentTone >= Piece.Length)
                 {
                     Pause();
                     return null;
                 }
 
-                try
-                {
-                    //var insturment = Channels[Piece[currentTone].instrument].AssignedInstrument.Number; <- Original stuff
+                Tone tone = Piece[currentTone];
+                var assignedInstrument = Channels[Piece[currentTone].instrument].AssignedInstrument;
+                if (assignedInstrument is null)
+                    tone.instrument = 255;
+                else
+                    tone.instrument = assignedInstrument.Number;
 
-                    //Tone tone = Piece[currentTone];
-                    //tone.instrument = insturment;
-                    currentTone++;
-                    //return tone;
-
-                    return Piece[currentTone]; // <- !!! Testing
-                }
-                catch
-                {
-                    currentTone++;
-                }
+                currentTone++;
+                return tone;
+            
             }
         }
 
@@ -268,43 +268,95 @@ namespace HardwareOrchestra.Viewmodels.Orchestra
             if (midi is null)
                 return;
 
-            // Get Channels
-            var channels = midi.GetChannels().ToArray();
-            ChannelViewmodel[] channelViewmodels = new ChannelViewmodel[channels.Count()];
-            for (byte n = 0; n < channelViewmodels.Length; n++)
+
+            // Get Notes & Channels
+            var tracks = midi.GetTrackChunks().ToArray();
+            var tempoMap = midi.GetTempoMap();
+
+            var tones = new List<Tone>();
+            var channels = new ChannelViewmodel[tracks.Count()];
+
+            byte trackNumber = 0;
+            foreach (TrackChunk track in midi.GetTrackChunks())
             {
-                channelViewmodels[n] = new ChannelViewmodel(channels[n]);
-                if (n == byte.MaxValue)
-                    break;
+                foreach (Note note in track.GetNotes())
+                {
+                    tones.Add(new Tone()
+                    {
+                        duration = (int)note.TimeAs<MetricTimeSpan>(tempoMap).TotalMicroseconds / 1000,
+                        note = note.NoteNumber,
+                        instrument = trackNumber,
+                    });
+
+                    tones.Add(new Tone()
+                    {
+                        duration = (int)note.EndTimeAs<MetricTimeSpan>(tempoMap).TotalMicroseconds / 1000,
+                        note = 0,
+                        instrument = trackNumber,
+                    });
+                }
+                channels[trackNumber] = new ChannelViewmodel(trackNumber);
+                trackNumber++;
             }
+            tones.Sort((x, y) => x.duration.CompareTo(y.duration));
 
-            // Get Tones
-            var tempomap = midi.GetTempoMap();
-            midi.RemoveTimedEvents((TimedEvent x) => !(x.Event is NoteEvent));
-            var events = midi.GetTimedEvents().ToArray();
-            var piece = new Tone[events.Count()];
-
-            for (int n = 0; n < events.Length; n++)
+            
+            for (int n = 0; n < tones.Count() - 1; n++)
             {
-                
-                var note = events[n].Event as NoteEvent;
-
-                if (note is NoteOnEvent)
-                    piece[n].note = note.NoteNumber;
-                else
-                    piece[n].note = 0;
-
-                piece[n].instrument = note.Channel;
-
-                piece[n].duration = (int)(note.DeltaTime * tempomap.Tempo.Last((ValueChange<Tempo> x) => events[n].Time >= x.Time).Value.MicrosecondsPerQuarterNote / 480 / 1000);
+                tones.ElementAt(n).duration = tones[n + 1].duration - tones[n].duration;
             }
+            tones.Last().duration = 10;
 
-            // Get Duration
-            Piece = piece;
-            PieceDuration = events.Last().TimeAs<MetricTimeSpan>(tempomap);
 
-            return;
+            Piece = tones.ToArray();
+            Channels = channels;
         }
+
+
+        //private async void LoadPiece()
+        //{
+        //    // Read Midi
+        //    var midi = await SelectedSheet.TryGetMidiAsync();
+        //    if (midi is null)
+        //        return;
+
+        //    // Get Channels
+        //    var channels = midi.GetChannels().ToArray();
+        //    ChannelViewmodel[] channelViewmodels = new ChannelViewmodel[channels.Count()];
+        //    for (byte n = 0; n < channelViewmodels.Length; n++)
+        //    {
+        //        channelViewmodels[n] = new ChannelViewmodel(channels[n]);
+        //        if (n == byte.MaxValue)
+        //            break;
+        //    }
+
+        //    // Get Tones
+        //    var tempomap = midi.GetTempoMap();
+        //    midi.RemoveTimedEvents((TimedEvent x) => !(x.Event is NoteEvent));
+        //    var events = midi.GetTimedEvents().ToArray();
+        //    var piece = new Tone[events.Count()];
+
+        //    for (int n = 0; n < events.Length; n++)
+        //    {
+                
+        //        var note = events[n].Event as NoteEvent;
+
+        //        if (note is NoteOnEvent)
+        //            piece[n].note = note.NoteNumber;
+        //        else
+        //            piece[n].note = 0;
+
+        //        piece[n].instrument = note.Channel;
+
+        //        piece[n].duration = (int)(note.DeltaTime * tempomap.Tempo.Last((ValueChange<Tempo> x) => events[n].Time >= x.Time).Value.MicrosecondsPerQuarterNote / 480 / 1000);
+        //    }
+
+        //    // Get Duration
+        //    Piece = piece;
+        //    PieceDuration = events.Last().TimeAs<MetricTimeSpan>(tempomap);
+
+        //    return;
+        //}
 
 
         private async void Conductor_ConnectionChanged(Resources.Orchestra.Conductor sender, bool isConnected)

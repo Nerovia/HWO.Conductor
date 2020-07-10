@@ -66,8 +66,7 @@ namespace HardwareOrchestra.Resources.Orchestra
     /// Handles the action when the conductor requenst a tone.
     /// </summary>
     /// <returns></returns>
-    public delegate Tone? QueueRequestHandler();
-
+    public delegate Tone QueueRequestHandler();
 
     public delegate void ConnectionChangedEventHandler(Conductor sender, bool isConnected);
 
@@ -111,7 +110,7 @@ namespace HardwareOrchestra.Resources.Orchestra
     /// <summary>
     /// Defines the properties of a orchestra tone-instruction.
     /// </summary>
-    public struct Tone : IConductable
+    public class Tone : IConductable
     {
         public byte note;
         public byte instrument;
