@@ -160,7 +160,7 @@
                 Glyph="&#xE773;"
                 >
                 <local:CollapsableSection.SectionContent>
-                    <StackPanel>
+                    <ScrollViewer>
                         
                         <ItemsControl
                             x:Name="MusicExplorerItemsControl"
@@ -174,7 +174,7 @@
                         </ItemsControl>
                         
                         
-                    </StackPanel>
+                    </ScrollViewer>
 
                 </local:CollapsableSection.SectionContent>
 

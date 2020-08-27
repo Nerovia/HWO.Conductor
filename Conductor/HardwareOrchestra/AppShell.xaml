@@ -36,6 +36,7 @@
                 HorizontalAlignment="Center"
                 Orientation="Horizontal">
 
+                <Button Click="Button_Click_2" Content="Rewind" Margin="10"/>
                 <Button Click="Button_Click" Content="Play" Margin="10" IsEnabled="{x:Bind Viewmodel.Orchestra.CanPlay, Mode=OneWay}"/>
                 <Button Click="Button_Click_1"  Content="Pause" Margin="10"/>
 

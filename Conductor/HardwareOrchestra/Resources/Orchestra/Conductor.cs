@@ -68,8 +68,9 @@ namespace HardwareOrchestra.Resources.Orchestra
             {
                 if (_OrchestraState != value)
                 {
+                    var oldState = _OrchestraState;
                     _OrchestraState = value;
-                    OnOrchestraStateChanged(_OrchestraState);
+                    OnOrchestraStateChanged(_OrchestraState, oldState);
                 }
             }
         }
@@ -341,9 +342,9 @@ namespace HardwareOrchestra.Resources.Orchestra
 
 
         public event OrchestraStateChanged OrchestraStateChanged;
-        protected virtual void OnOrchestraStateChanged(OrchestraState orchestraState)
+        protected virtual void OnOrchestraStateChanged(OrchestraState newState, OrchestraState oldState)
         {
-            OrchestraStateChanged?.Invoke(this, orchestraState);
+            OrchestraStateChanged?.Invoke(this, newState, oldState);
         }
 
 

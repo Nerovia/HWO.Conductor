@@ -216,6 +216,12 @@ namespace HardwareOrchestra.Viewmodels.Orchestra
         }
 
 
+        public async void Conclude()
+        {
+            await conductor.ChangeState(OrchestraState.Conclude);
+        }
+
+
         public async void Pause()
         {
             await conductor.ChangeState(OrchestraState.Rest);
@@ -229,28 +235,36 @@ namespace HardwareOrchestra.Viewmodels.Orchestra
             await conductor.ChangeState(OrchestraState.Rest);
         }
 
+        public void GoTo(uint currentTone)
+        {
+            Stop();
+            if (currentTone < Piece.Length)
+                currentTone = (uint)Piece.Length;
+            this.currentTone = currentTone;
+        }
+
 
         private Tone Conductor_QueueRequest()
         {
-            while (true)
+            if (currentTone >= Piece.Length)
             {
-                if (currentTone >= Piece.Length)
-                {
-                    Pause();
-                    return null;
-                }
-
-                Tone tone = Piece[currentTone];
-                var assignedInstrument = Channels[Piece[currentTone].instrument].AssignedInstrument;
-                if (assignedInstrument is null)
-                    tone.instrument = 255;
-                else
-                    tone.instrument = assignedInstrument.Number;
-
-                currentTone++;
-                return tone;
-            
+                Conclude();
+                return null;
             }
+
+            Tone tone = new Tone();
+            tone.duration = Piece[currentTone].duration;
+            tone.instrument = Piece[currentTone].instrument;
+            tone.note = Piece[currentTone].note;
+
+            var assignedInstrument = Channels[Piece[currentTone].instrument].AssignedInstrument;
+            if (assignedInstrument is null)
+                tone.instrument = 255;
+            else
+                tone.instrument = assignedInstrument.Number;
+
+            currentTone++;
+            return tone;
         }
 
 
@@ -392,13 +406,15 @@ namespace HardwareOrchestra.Viewmodels.Orchestra
         }
 
 
-        private async void Conductor_OrchestraStateChanged(Resources.Orchestra.Conductor sender, OrchestraState orchestraState)
+        private async void Conductor_OrchestraStateChanged(Resources.Orchestra.Conductor sender, OrchestraState newState, OrchestraState oldState)
         {
             await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal,
             () =>
             {
                 OnPropertyChanged(nameof(OrchestraState));
                 OnPropertyChanged(nameof(CanPlay));
+                if (oldState == OrchestraState.Conclude && newState == OrchestraState.Rest)
+                    currentTone = 0;
             });
         }
 

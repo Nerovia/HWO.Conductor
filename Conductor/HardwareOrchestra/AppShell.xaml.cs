@@ -41,6 +41,11 @@ namespace HardwareOrchestra
         {
             Viewmodel?.Orchestra?.Pause();
         }
+
+        private void Button_Click_2(object sender, RoutedEventArgs e)
+        {
+            Viewmodel?.Orchestra?.GoTo(0);
+        }
         // !!! Testing !!!
     }
 }

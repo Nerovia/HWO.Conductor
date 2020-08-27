@@ -19,7 +19,8 @@ namespace HardwareOrchestra.Resources.Orchestra
         Rest = 0,
         Tune = 1,
         Perform = 2,
-        Interrupted = 3,
+        Conclude = 3,
+        Interrupted = 4,
     }
 
 
@@ -72,7 +73,7 @@ namespace HardwareOrchestra.Resources.Orchestra
 
     public delegate void ConnectionErrorEventHandler(Conductor sender);
 
-    public delegate void OrchestraStateChanged(Conductor sender, OrchestraState orchestraState);
+    public delegate void OrchestraStateChanged(Conductor sender, OrchestraState newState, OrchestraState oldState);
 
     public delegate void InsturmentsChangedEventHandler(Conductor sender, InstrumentType[] instruments);
 
